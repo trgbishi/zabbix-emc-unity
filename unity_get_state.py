@@ -21,7 +21,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 # Create log-object
 LOG_FILENAME = "/tmp/unity_state.log"
 unity_logger = logging.getLogger("unity_logger")
-unity_logger.setLevel(logging.INFO)
+unity_logger.setLevel(logging.DEBUG)
 
 # Set handler
 unity_handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=1024*1024, backupCount=5)
@@ -103,12 +103,17 @@ def send_data_to_zabbix(zabbix_data, storage_name):
 def discovering_resources(api_user, api_password, api_ip, api_port, storage_name, list_resources):
 	api_session = api_connect(api_user, api_password, api_ip, api_port)
 
-	xer = []
+	ret = 0
 	try:
 		for resource in list_resources:
+			xer = []
+			unity_logger.debug("resource discover: {0}".format(resource))
 			resource_url = "https://{0}:{1}/api/types/{2}/instances?fields=name".format(api_ip, api_port, resource)
+			unity_logger.debug("resource_url: {0}".format(resource_url))
 			resource_info = api_session.get(resource_url, verify=False)
+			unity_logger.debug("resource_info0: {0}".format(resource_info))
 			resource_info = json.loads(resource_info.content.decode('utf8'))
+			unity_logger.debug("resource_info: {0}".format(resource_info))
 
 			discovered_resource = []
 			for one_object in resource_info['entries']:
@@ -124,21 +129,25 @@ def discovering_resources(api_user, api_password, api_ip, api_port, storage_name
 			converted_resource = convert_to_zabbix_json(discovered_resource)
 			timestampnow = int(time.time())
 			xer.append("%s %s %s %s" % (storage_name, resource, timestampnow, converted_resource))
+			unity_logger.debug("zabbix_data: {0}".format(xer))
+			ret = send_data_to_zabbix(xer, storage_name) + ret
 	except Exception as oops:
 		unity_logger.error("Error occurs in discovering")
 		sys.exit("1000")
 
 	api_session_logout = api_logout(api_ip, api_session)
-	return send_data_to_zabbix(xer, storage_name)
+	return ret
 
 
 
 def get_status_resources(api_user, api_password, api_ip, api_port, storage_name, list_resources):
 	api_session = api_connect(api_user, api_password, api_ip, api_port)
 
-	state_resources = [] # This list will persist state of resources (pool, lun, fcPort, battery, diks, ...) on zabbix format
+	ret = 0
 	try:
 		for resource in list_resources:
+			state_resources = [] # This list will persist state of resources (pool, lun, fcPort, battery, diks, ...) on zabbix format
+			unity_logger.debug("resource status: {0}".format(resource))
 			# Create different URI for different resources
 			if ['pool'].count(resource) == 1:
 				resource_url = "https://{0}:{1}/api/types/{2}/instances?fields=name,health,sizeTotal,sizeUsed,sizeSubscribed".format(api_ip, api_port, resource)
@@ -146,10 +155,13 @@ def get_status_resources(api_user, api_password, api_ip, api_port, storage_name,
 				resource_url = "https://{0}:{1}/api/types/{2}/instances?fields=name,health,sizeTotal,sizeAllocated".format(api_ip, api_port, resource)
 			else:
 				resource_url = "https://{0}:{1}/api/types/{2}/instances?fields=name,health,needsReplacement".format(api_ip, api_port, resource)
+			unity_logger.debug("resource_url: {0}".format(resource_url))
 
 			# Get info about one resource
 			resource_info = api_session.get(resource_url, verify=False)
+			unity_logger.debug("resource_info0: {0}".format(resource_info))
 			resource_info = json.loads(resource_info.content.decode('utf8'))
+			unity_logger.debug("resource_info: {0}".format(resource_info))
 			timestampnow = int(time.time())
 
 			if ['ethernetPort', 'fcPort', 'sasPort'].count(resource) == 1:
@@ -202,12 +214,14 @@ def get_status_resources(api_user, api_password, api_ip, api_port, storage_name,
 					key_status = "running.{0}.[{1}]".format(resource, one_object['content']['id'].replace(' ', '_'))
 					state_resources.append("%s %s %s %s" % (storage_name, key_health, timestampnow, one_object['content']['health']['value']))
 					state_resources.append("%s %s %s %s" % (storage_name, key_status, timestampnow, running_status))
+			unity_logger.debug("zabbix_data: {0}".format(state_resources))		
+			ret = ret + send_data_to_zabbix(state_resources, storage_name)
 	except Exception as oops:
 		unity_logger.error("Error occured in get state")
 		sys.exit("1000")
 
 	api_session_logout = api_logout(api_ip, api_session)
-	return send_data_to_zabbix(state_resources, storage_name)
+	return ret
 
 
 
@@ -224,6 +238,7 @@ def main():
 	group.add_argument('--discovery', action ='store_true')
 	group.add_argument('--status', action='store_true')
 	arguments = unity_parser.parse_args()
+	unity_logger.debug("arguments: {0}".format(arguments))
 
 	list_resources = ['battery','ssd','ethernetPort','fcPort','sasPort','fan','powerSupply','storageProcessor','lun','pool','dae','dpe','ioModule','lcc','memoryModule','ssc','uncommittedPort','disk']
 	if arguments.discovery:

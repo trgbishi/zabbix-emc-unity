@@ -115,7 +115,7 @@
                     <type>10</type>
                     <snmp_community/>
                     <snmp_oid/>
-                    <key>unity_get_state.py[&quot;--api_ip={$API_IP}&quot;,&quot;--api_port={$API_PORT}&quot;,&quot;--api_user={$API_USER}&quot;,&quot;--api_password={$API_PASSWORD}&quot;,&quot;--storage_name={HOST.NAME}&quot;,&quot;--discovery&quot;]</key>
+                    <key>unity_get_state.py[&quot;--api_ip={$API_IP}&quot;,&quot;--api_port={$API_PORT}&quot;,&quot;--api_user={$API_USER}&quot;,&quot;--api_password={$API_PASSWORD}&quot;,&quot;--storage_name={HOST.HOST}&quot;,&quot;--discovery&quot;]</key>
                     <delay>15m</delay>
                     <history>90d</history>
                     <trends>365d</trends>
@@ -174,7 +174,7 @@
                     <type>10</type>
                     <snmp_community/>
                     <snmp_oid/>
-                    <key>unity_get_state.py[&quot;--api_ip={$API_IP}&quot;,&quot;--api_port={$API_PORT}&quot;,&quot;--api_user={$API_USER}&quot;,&quot;--api_password={$API_PASSWORD}&quot;,&quot;--storage_name={HOST.NAME}&quot;,&quot;--status&quot;]</key>
+                    <key>unity_get_state.py[&quot;--api_ip={$API_IP}&quot;,&quot;--api_port={$API_PORT}&quot;,&quot;--api_user={$API_USER}&quot;,&quot;--api_password={$API_PASSWORD}&quot;,&quot;--storage_name={HOST.HOST}&quot;,&quot;--status&quot;]</key>
                     <delay>3m</delay>
                     <history>90d</history>
                     <trends>365d</trends>

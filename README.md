@@ -29,3 +29,14 @@ Scirpt must be copied to zabbix-server or zabbix-proxy, depending on what the to
 If you have executed this script from console from user root or from another user, please check access permission on file **/tmp/unity_state.log**. It must be allow read, write to user zabbix.
 
 - Return code 1 or 2 is zabbix_sender return code. Read here - https://www.zabbix.com/documentation/4.4/manpages/zabbix_sender
+
+
+
+1. 需要安装python3，并且将python3的执行文件链接到/usr/bin/python
+    安装参考https://www.jianshu.com/p/e191f9dc1186，需要网络
+2. unity_get_state.py 放到/usr/lib/zabbix/externalscripts目录下，并赋予权限
+    chown -R zabbix:zabbix unity_get_state.py 
+    chmod 777 unity_get_state.py 
+    vi => :set ff=unix
+3. 给日志文件赋权
+    chown -R zabbix:zabbix unity_state.log
