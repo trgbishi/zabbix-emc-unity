@@ -40,3 +40,6 @@ If you have executed this script from console from user root or from another use
     vi => :set ff=unix
 3. 给日志文件赋权
     chown -R zabbix:zabbix unity_state.log
+
+
+ps: 虽然模板写的是unity400，经测试480也支持
