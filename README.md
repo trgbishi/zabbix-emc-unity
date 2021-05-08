@@ -40,6 +40,10 @@ If you have executed this script from console from user root or from another use
     vi => :set ff=unix
 3. 给日志文件赋权
     chown -R zabbix:zabbix unity_state.log
-
+4. vi /usr/lib/systemd/system/zabbix-server.service 
+    在[Service]下添加
+        User=root
+        Group=root
+    ps: 该方案解决了zabbix外部检查每次跑一半就卡住的问题，问题原因未知
 
 ps: 虽然模板写的是unity400，经测试480也支持

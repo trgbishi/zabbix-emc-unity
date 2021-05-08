@@ -21,7 +21,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 # Create log-object
 LOG_FILENAME = "/tmp/unity_state.log"
 unity_logger = logging.getLogger("unity_logger")
-unity_logger.setLevel(logging.DEBUG)
+unity_logger.setLevel(logging.INFO)
 
 # Set handler
 unity_handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=1024*1024, backupCount=5)
